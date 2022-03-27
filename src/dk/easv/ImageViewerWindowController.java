@@ -82,13 +82,13 @@ public class ImageViewerWindowController {
     public void stopBtn(ActionEvent event) {
         if (thread.isAlive()){
             thread.interrupt();
-            stopBtn.setText("Start");
+            stopBtn.setText("Start SlideShow");
         }
         else {
             task = getTask();
             thread = new Thread(task);
             thread.start();
-            stopBtn.setText("Stop");
+            stopBtn.setText("Stop SlideShow");
         }
     }
 

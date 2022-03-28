@@ -27,7 +27,7 @@
                             </opaqueInsets>
                         </Button>
                         <Button id="btnNext" fx:id="btnNext" mnemonicParsing="false" onAction="#handleBtnNextAction" text="Next" />
-                  <Button id="btnNext" fx:id="stopBtn" mnemonicParsing="false" onAction="#stopBtn" prefHeight="26.0" prefWidth="162.0" text="SlideShow" />
+                  <Button id="btnNext" fx:id="stopBtn" mnemonicParsing="false" onAction="#stopBtn" prefHeight="26.0" prefWidth="162.0" text="Stop SlideShow" />
                     </buttons>
                 </ButtonBar>
             <Slider fx:id="slideshowSlider" blockIncrement="0.1" majorTickUnit="1.0" max="5.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" value="1.0">

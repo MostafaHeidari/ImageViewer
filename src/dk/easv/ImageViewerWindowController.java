@@ -5,21 +5,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Slider;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+
+
+
+
 public class ImageViewerWindowController {
     private final List<Image> images = new ArrayList<>();
     public Button stopBtn;
+    public Slider slideshowSlider;
     private int currentImageIndex = 0;
+
 
     @FXML
     Parent root;
@@ -27,12 +41,26 @@ public class ImageViewerWindowController {
     @FXML
     private ImageView imageView;
 
-    private static int time = 2500;
+    private double time = 2000; // hver 1000 svare til 1 sek
 
     int count; //declared as global variable
     private Task task;
     private Thread thread;
     private List<File> files;
+
+    public ImageViewerWindowController() {
+        slideshowSlider = new Slider();
+
+        // The minimum value.
+        slideshowSlider.setMin(1000);
+
+        // The maximum value.
+        slideshowSlider.setMax(5000);
+
+        // Current value
+        slideshowSlider.setValue(time);
+
+    }
 
     @FXML
     private void handleBtnLoadAction() {
@@ -55,6 +83,35 @@ public class ImageViewerWindowController {
             thread.start();
         }
     }
+
+    /**
+     * Initialize metode, som hovedsageligt viser alt vores data i vores tabels.
+     * Udover det bruges vores volumeslider også i denne metode.
+     *
+     * @throws Exception
+     */
+    public void initialize() throws Exception {
+
+       /* slideshowSlider.valueProperty().addListener(new InvalidationListener() {
+            @Override
+            public void invalidated(Observable observable) {
+                slideshowSlider.set(time);
+            }
+        });*/
+
+        slideshowSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                time = slideshowSlider.getValue() * 1000;
+            };
+
+        });
+    }
+
+
+
+
+
 
     @FXML
     private void handleBtnPreviousAction() {
@@ -108,12 +165,15 @@ public class ImageViewerWindowController {
                         }
                     });
 
-                    Thread.sleep(time);
+                    Thread.sleep((long) time);
                 }
                 return null;
             }
         };
+
     }
+
+
 }
 
 

@@ -18,6 +18,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.shape.Path;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -32,6 +34,7 @@ public class ImageViewerWindowController {
     private final List<Image> images = new ArrayList<>();
     public Button stopBtn;
     public Slider slideshowSlider;
+    public Text fileText;
     private int currentImageIndex = 0;
 
 
@@ -47,6 +50,7 @@ public class ImageViewerWindowController {
     private Task task;
     private Thread thread;
     private List<File> files;
+    private String filesPath;
 
     public ImageViewerWindowController() {
         slideshowSlider = new Slider();
@@ -61,6 +65,8 @@ public class ImageViewerWindowController {
         slideshowSlider.setValue(time);
 
     }
+
+
 
     @FXML
     private void handleBtnLoadAction() {
@@ -158,6 +164,7 @@ public class ImageViewerWindowController {
                         @Override
                         public void run() {
                             imageView.setImage(images.get(count));
+                            fileText.setText(filesPath);
                             count++;
                             if (count >= images.size()) {
                                 count = 0;
@@ -172,6 +179,8 @@ public class ImageViewerWindowController {
         };
 
     }
+
+   
 
 
 }

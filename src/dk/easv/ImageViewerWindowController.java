@@ -3,6 +3,8 @@ package dk.easv;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -83,11 +85,24 @@ public class ImageViewerWindowController {
                 images.add(new Image(f.toURI().toString()));
             });
         }
-        if(thread == null || !thread.isAlive()){
+
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        executor.submit(() -> {
+            SideshowTask sideshowTask = new SideshowTask();
+            try {
+                sideshowTask.call();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        });
+
+       /* if(thread == null || !thread.isAlive()){
             task = getTask();
             thread = new Thread(task);
             thread.start();
         }
+        */
     }
 
     /**
@@ -104,6 +119,8 @@ public class ImageViewerWindowController {
                 slideshowSlider.set(time);
             }
         });*/
+
+        Chan
 
         slideshowSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override

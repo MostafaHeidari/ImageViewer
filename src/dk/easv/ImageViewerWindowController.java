@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -37,6 +39,7 @@ public class ImageViewerWindowController {
     public Button stopBtn;
     public Slider slideshowSlider;
     public Text fileText;
+    public Button btnNext;
     private int currentImageIndex = 0;
 
 
@@ -46,13 +49,15 @@ public class ImageViewerWindowController {
     @FXML
     private ImageView imageView;
 
-    private double time = 2000; // hver 1000 svare til 1 sek
+    private long time = 2; // hver 1000 svare til 1 sek
 
     int count; //declared as global variable
     private Task task;
     private Thread thread;
     private List<File> files;
     private String filesPath;
+
+    private ScheduledExecutorService executor;
 
     public ImageViewerWindowController() {
         slideshowSlider = new Slider();
@@ -65,10 +70,15 @@ public class ImageViewerWindowController {
 
         // Current value
         slideshowSlider.setValue(time);
+        /*
+        int n = 8; // Number of threads
+        for (int i = 0; i < n; i++) {
+            MultithreadingDemo object
+                    = new MultithreadingDemo();
+            object.start();
 
+        }*/
     }
-
-
 
     @FXML
     private void handleBtnLoadAction() {
@@ -86,7 +96,8 @@ public class ImageViewerWindowController {
             });
         }
 
-        ExecutorService executor = Executors.newFixedThreadPool(1);
+        start();
+       /* ExecutorService executor = Executors.newFixedThreadPool(1);
         executor.submit(() -> {
             SideshowTask sideshowTask = new SideshowTask();
             try {
@@ -95,7 +106,7 @@ public class ImageViewerWindowController {
                 e.printStackTrace();
             }
 
-        });
+        });*/
 
        /* if(thread == null || !thread.isAlive()){
             task = getTask();
@@ -120,12 +131,11 @@ public class ImageViewerWindowController {
             }
         });*/
 
-        Chan
 
         slideshowSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                time = slideshowSlider.getValue() * 1000;
+                time = (long) slideshowSlider.getValue();
             };
 
         });
@@ -156,18 +166,33 @@ public class ImageViewerWindowController {
     private void displayImage() {
         if (!images.isEmpty()) {
             imageView.setImage(images.get(currentImageIndex));
+            fileText.setText(images.get(currentImageIndex).getUrl());
         }
     }
 
+    private void start() {
+        Runnable task = () -> {
+            //Put any code that needs to run here
+            Platform.runLater(() -> {
+                //Put even more code to be updated automatically
+                btnNext.fire();
+            });
+        };
+
+        executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(task, time, time, TimeUnit.SECONDS);
+    }
+
     public void stopBtn(ActionEvent event) {
-        if (thread.isAlive()){
-            thread.interrupt();
+        if (!executor.isShutdown()){
+            executor.shutdown();
             stopBtn.setText("Start SlideShow");
         }
         else {
-            task = getTask();
-            thread = new Thread(task);
-            thread.start();
+            start();
+            //task = getTask();
+            //thread = new Thread(task);
+            //thread.start();
             stopBtn.setText("Stop SlideShow");
         }
     }
@@ -196,10 +221,22 @@ public class ImageViewerWindowController {
         };
 
     }
+}
 
-   
-
-
+class MultithreadingDemo extends Thread {
+    public void run()
+    {
+        try {
+            // Displaying the thread that is running
+            System.out.println(
+                    "Thread " + Thread.currentThread().getId()
+                            + " is running");
+        }
+        catch (Exception e) {
+            // Throwing an exception
+            System.out.println("Exception is caught");
+        }
+    }
 }
 
 

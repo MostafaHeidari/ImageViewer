@@ -25,6 +25,9 @@ public class SideshowTask extends Task<Image> {
 
     private double time = 2000; // hver 1000 svare til 1 sek
 
+    public SideshowTask() {
+    }
+
     public SideshowTask(int count, Task task, String filesPath, Text fileText, ImageView imageView, double time) {
         this.count = count;
         this.task = task;

@@ -63,10 +63,10 @@ public class ImageViewerWindowController {
         slideshowSlider = new Slider();
 
         // The minimum value.
-        slideshowSlider.setMin(1000);
+        slideshowSlider.setMin(1);
 
         // The maximum value.
-        slideshowSlider.setMax(5000);
+        slideshowSlider.setMax(5);
 
         // Current value
         slideshowSlider.setValue(time);

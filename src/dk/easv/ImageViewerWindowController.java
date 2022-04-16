@@ -1,28 +1,27 @@
 package dk.easv;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.shape.Path;
+import javafx.scene.image.PixelReader;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -42,6 +41,14 @@ public class ImageViewerWindowController {
     public Button btnNext;
     private int currentImageIndex = 0;
 
+    private Image image = images.get(currentImageIndex);
+
+    public double getImageHeight() {
+        return image.getHeight();
+    }
+    public double getImageWidth() {
+        return image.getWidth();
+    }
 
     @FXML
     Parent root;
@@ -49,7 +56,7 @@ public class ImageViewerWindowController {
     @FXML
     private ImageView imageView;
 
-    private long time = 2; // hver 1000 svare til 1 sek
+    private long time = 2; // hver tal svare til 1 sek
 
     int count; //declared as global variable
     private Task task;
@@ -79,6 +86,7 @@ public class ImageViewerWindowController {
 
         }*/
     }
+
 
     @FXML
     private void handleBtnLoadAction() {
@@ -197,7 +205,87 @@ public class ImageViewerWindowController {
         }
     }
 
-    private Task<Void> getTask(){
+    private Task<Void> getPixels(){
+        return new Task<Void>() {
+            @Override
+            public Void call() throws Exception {
+
+                double height = getImageHeight();
+                double width = getImageWidth();
+
+                int redCount = 0;
+                int pixelCount = 0;
+
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height ; y++) {
+
+                        Color rgb = image.getPixelReader().getColor(x, y);
+
+
+                        //get rgbs
+                        //int alpha = (rgb >>> 24) & 0xFF;
+                        Color red  = (rgb >> 16) & 0xFF;
+                        Color green = (rgb >>  8) & 0xFF;
+                        Color blue  = (rgb >>  0) & 0xFF;
+
+
+
+                        if (red > green && red > blue) {
+                            redCount++;
+                        }
+
+                        pixelCount++;
+                    }
+                }
+
+                System.out.println("Red Pixel Count:" + redCount);
+                System.out.println("Pixel Count:" + pixelCount);
+                Thread.sleep((long) time);
+                return null;
+            }
+        };
+
+    }
+
+    public ObservableList<PieChart.Data> pixelStats(Image image) {
+        ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
+
+        int counterPixelsRed = 0;
+        int counterPixelsGreen = 0;
+        int counterPixelsBlue = 0;
+
+        int redColorRGB = Color.RED.getRGB();
+        int blueColorRGB = Color.BLUE.getRGB();
+        int greenColorRGB = Color.GREEN.getRGB();
+
+        PixelReader pixelReader = image.getPixelReader();
+        for (int x = 0; x < image.getWidth(); ++x) {
+            for (int y = 0; y < image.getHeight(); ++y) {
+                int differencePixelBlue = Math.abs(pixelReader.getArgb(x, y) - blueColorRGB);
+                int differencePixelRed = Math.abs(pixelReader.getArgb(x, y) - redColorRGB);
+                int differencePixelGreen = Math.abs(pixelReader.getArgb(x, y) - greenColorRGB);
+
+                if (differencePixelBlue > differencePixelGreen && differencePixelBlue > differencePixelRed)
+                    counterPixelsBlue += 1;
+
+                if (differencePixelGreen > differencePixelRed && differencePixelGreen > differencePixelBlue)
+                    counterPixelsGreen += 1;
+
+                if (differencePixelRed > differencePixelBlue && differencePixelRed > differencePixelGreen)
+                    counterPixelsRed += 1;
+
+            }
+        }
+        pieData.add(new PieChart.Data("blue", counterPixelsBlue));
+        pieData.add(new PieChart.Data("green", counterPixelsGreen));
+        pieData.add(new PieChart.Data("red", counterPixelsRed));
+
+        return pieData;
+    }
+}
+
+
+   /* private Task<Void> getTask(){
         return new Task<Void>() {
             @Override
             public Void call() throws Exception {
@@ -223,6 +311,8 @@ public class ImageViewerWindowController {
     }
 }
 
+    */
+
 class MultithreadingDemo extends Thread {
     public void run()
     {
@@ -237,6 +327,7 @@ class MultithreadingDemo extends Thread {
             System.out.println("Exception is caught");
         }
     }
+
 }
 
 
